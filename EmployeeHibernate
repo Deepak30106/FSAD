@@ -1,0 +1,59 @@
+package dao;
+
+import db.dbconnection;
+import model.employee;
+
+
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
+
+public class employeedao {
+
+    // Fetch employees with salary > 50,000
+    public List<employee> getHighSalaryEmployees() {
+
+        List<employee> list = new ArrayList<>();
+        String sql = "SELECT empId, empName, salary, designation FROM employees WHERE salary > 50000";
+
+        try (Connection con = dbconnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                employee emp = new employee(
+                        rs.getInt("empId"),
+                        rs.getString("empName"),
+                        rs.getDouble("salary"),
+                        rs.getString("designation")
+                );
+                list.add(emp);
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("❌ Error fetching employees", e);
+        }
+
+        return list;
+    }
+
+    // Calculate average salary
+    public double getAverageSalary() {
+
+        String sql = "SELECT AVG(salary) FROM employees";
+
+        try (Connection con = dbconnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            if (rs.next()) {
+                return rs.getDouble(1);
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("❌ Error calculating average salary", e);
+        }
+
+        return 0;
+    }
+}
